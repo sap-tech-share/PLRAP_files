@@ -1,0 +1,16 @@
+@EndUserText.label : 'Attachments for Procurement List'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table ztab_pl_attach {
+
+  key client      : abap.clnt not null;
+  key plist       : abap.numc(10) not null;
+  key attach_no   : abap.numc(3) not null;
+  attachment      : /dmo/attachment;
+  mimetype        : /dmo/mime_type;
+  filename        : /dmo/filename;
+  last_changed_at : timestamp;
+
+}
