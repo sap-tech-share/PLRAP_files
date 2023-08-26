@@ -7,7 +7,7 @@
     sizeCategory: #S,
     dataClass: #MIXED
 }
-define view entity ZI_PL_HEAD as select from ztab_pl_head
+define view entity ZI_PL_HEAD as select from zpl_tab_head
 association[1] to I_UnitOfMeasure as _UnitOfMeasure on $projection.Unit = _UnitOfMeasure.UnitOfMeasure
 {
     key plist as Plist,
@@ -54,4 +54,5 @@ association[1] to I_UnitOfMeasure as _UnitOfMeasure on $projection.Unit = _UnitO
     
     _UnitOfMeasure._Text[Language = $session.system_language].UnitOfMeasureName as UnitName,
     _UnitOfMeasure
+    
 }

@@ -3,40 +3,39 @@
 @AbapCatalog.tableCategory : #TRANSPARENT
 @AbapCatalog.deliveryClass : #A
 @AbapCatalog.dataMaintenance : #RESTRICTED
-define table ztab_pl_head {
-
+define table zpl_tab_head {
   key mandt       : mandt not null;
-  key plist       : abap.numc(10) not null;
-  name            : abap.char(40);
-  plate_no        : abap.char(20);
-  est_chg_req     : abap.char(10);
-  @Semantics.quantity.unitOfMeasure : 'ztab_pl_head.unit'
+  key plist       : numc10 not null;
+  name            : /sapapo/cres_name;
+  plate_no        : char20;
+  est_chg_req     : char10;
+  @Semantics.quantity.unitOfMeasure : 'zpl_tab_head.unit'
   qty             : menge_d;
-  unit            : meins;
-  division        : abap.numc(8);
-  owner           : abap.numc(8);
-  zzuser          : abap.numc(8);
-  year_of_const   : abap.char(4);
-  exp_date        : abap.dats;
+  unit            : /sapapo/meins;
+  division        : hrobjid;
+  owner           : num8;
+  zzuser          : num8;
+  year_of_const   : char4;
+  exp_date        : datum;
   @EndUserText.label : 'Total Counter Reading'
   km_reading      : abap.dec(16,0);
-  act_config      : abap.char(30);
-  equip_con_code  : abap.char(6);
-  alloc_code      : abap.char(2);
-  equip_type      : abap.char(10);
-  description     : abap.char(60);
-  diso            : abap.char(3);
-  diso_options    : abap.char(80);
-  log_catg        : abap.char(3);
-  comments        : abap.char(20);
-  ref_file        : abap.char(12);
-  attachmnt       : abap.char(1);
-  status          : abap.char(11);
+  act_config      : char30;
+  equip_con_code  : char6;
+  alloc_code      : char2;
+  equip_type      : /scmb/de_equi_code;
+  description     : /sapapo/cres_text;
+  diso            : char3;
+  diso_options    : char80;
+  log_catg        : char3;
+  comments        : char20;
+  ref_file        : char12;
+  attachmnt       : char1;
+  status          : char11;
   apprv_by        : usnam;
-  proc_file_no    : abap.char(10);
+  proc_file_no    : char10;
   contract_no     : ebeln;
-  procurement_dt  : abap.dats;
-  delivery_dt     : abap.dats;
+  procurement_dt  : date;
+  delivery_dt     : datum;
   created_by      : usnam;
   created_at      : timestamp;
   changed_by      : usnam;

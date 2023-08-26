@@ -5,6 +5,7 @@
 @ObjectModel.semanticKey: ['Plist']
 define root view entity ZI_PL_HEAD_TP as select from ZI_PL_HEAD
 composition [*] of ZI_PL_ATTACH as _PLAttach
+association [1] to ZI_RESID_VEHICLE as _ResID on $projection.PlateNo = _ResID.PlateNo
 {
 //    @ObjectModel.text.element: ['Name']
     @Search.defaultSearchElement: true
@@ -54,5 +55,7 @@ composition [*] of ZI_PL_ATTACH as _PLAttach
     UnitName,
     /* Associations */
     _UnitOfMeasure,
-    _PLAttach
+    _PLAttach,
+//    _ResID,
+    _ResID
 }

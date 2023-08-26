@@ -7,7 +7,7 @@
     sizeCategory: #S,
     dataClass: #MIXED
 }
-define view entity ZI_PL_ATTACH as select from ztab_pl_attach
+define view entity ZI_PL_ATTACH as select from zpl_tab_attach
 association to parent ZI_PL_HEAD_TP as _Head on $projection.Plist = _Head.Plist
 {
     key plist as Plist,

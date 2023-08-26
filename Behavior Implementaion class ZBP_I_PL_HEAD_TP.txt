@@ -1,29 +1,31 @@
-CLASS lhc_Plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
+CLASS lhc_plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS get_instance_features FOR INSTANCE FEATURES
-      IMPORTING keys REQUEST requested_features FOR Plist RESULT result.
+      IMPORTING keys REQUEST requested_features FOR plist RESULT result.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
-      IMPORTING keys REQUEST requested_authorizations FOR Plist RESULT result.
+      IMPORTING keys REQUEST requested_authorizations FOR plist RESULT result.
 
     METHODS earlynumbering_create FOR NUMBERING
-      IMPORTING entities FOR CREATE Plist.
+      IMPORTING entities FOR CREATE plist.
 
-    METHODS SetStatusComplete FOR MODIFY
-      IMPORTING keys FOR ACTION Plist~SetStatusComplete RESULT result.
+    METHODS setstatuscomplete FOR MODIFY
+      IMPORTING keys FOR ACTION plist~setstatuscomplete RESULT result.
 
-    METHODS SetInitialStatus FOR DETERMINE ON MODIFY
-      IMPORTING keys FOR Plist~SetInitialStatus.
+    METHODS setinitialstatus FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR plist~setinitialstatus.
 
-    METHODS ValidatePlate FOR VALIDATE ON SAVE
-      IMPORTING keys FOR Plist~ValidatePlate.
-    METHODS earlynumbering_cba_Plattach FOR NUMBERING
-      IMPORTING entities FOR CREATE Plist\_Plattach.
+    METHODS validateplate FOR VALIDATE ON SAVE
+      IMPORTING keys FOR plist~validateplate.
+    METHODS populatevehicledetails FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR plist~populatevehicledetails.
+    METHODS earlynumbering_cba_plattach FOR NUMBERING
+      IMPORTING entities FOR CREATE plist\_plattach.
 
 ENDCLASS.
 
-CLASS lhc_Plist IMPLEMENTATION.
+CLASS lhc_plist IMPLEMENTATION.
 
   METHOD get_instance_features.
   ENDMETHOD.
@@ -32,36 +34,39 @@ CLASS lhc_Plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD earlynumbering_create.
-
     DATA(lt_entities) = entities.
-    SELECT max(  plist ) FROM ztab_pl_head into @DATA(lv_max_plist).
-    SELECT max(  plist ) FROM ztab_pl_head_d into @DATA(lv_max_plist_d).
-    if lv_max_plist_d gt lv_max_plist.
-        lv_max_plist = lv_max_plist_d.
-    endif.
+    SELECT MAX(  plist ) FROM zpl_tab_head INTO @DATA(lv_max_plist).
+*    SELECT max(  plist ) FROM zpl_tab_head_d into @DATA(lv_max_plist_d).
+*    if lv_max_plist_d gt lv_max_plist.
+*        lv_max_plist = lv_max_plist_d.
+*    endif.
 
-    LOOP AT lt_entities INTO data(ls_entity).
+    LOOP AT lt_entities INTO DATA(ls_entity).
+      IF ls_entity-plist IS INITIAL.
         lv_max_plist = lv_max_plist + 1.
-        ls_entity-Plist = |{ lv_max_plist ALPHA = IN }|.
+        ls_entity-plist = |{ lv_max_plist ALPHA = IN }|.
+      ENDIF.
 
-        APPEND VALUE #( %cid = ls_entity-%cid %is_draft = ls_entity-%is_draft plist = ls_entity-Plist ) TO mapped-plist.
+      APPEND VALUE #( %cid = ls_entity-%cid
+*        %is_draft = ls_entity-%is_draft
+      plist = ls_entity-plist ) TO mapped-plist.
     ENDLOOP.
   ENDMETHOD.
 
-  METHOD SetStatusComplete.
+  METHOD setstatuscomplete.
     MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
-      ENTITY Plist
-         UPDATE
-           FIELDS ( Status )
-           WITH VALUE #( FOR key IN keys
-                           ( %tky         = key-%tky
-                             Status = key-%param-status ) )
-      FAILED failed
-      REPORTED reported.
+    ENTITY plist
+       UPDATE
+         FIELDS ( status )
+         WITH VALUE #( FOR key IN keys
+                         ( %tky         = key-%tky
+                           status = key-%param-status ) )
+    FAILED failed
+    REPORTED reported.
 
 *   Read the changed values and update result
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
-      ENTITY Plist
+      ENTITY plist
         ALL FIELDS WITH CORRESPONDING #( keys )
       RESULT DATA(lt_plist).
 
@@ -70,35 +75,34 @@ CLASS lhc_Plist IMPLEMENTATION.
                           %param = ls_plist ) ).
   ENDMETHOD.
 
-  METHOD SetInitialStatus.
+  METHOD setinitialstatus.
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
-        ENTITY Plist FIELDS ( Status ) WITH CORRESPONDING #( keys )
-        RESULT DATA(lt_plist).
+       ENTITY plist FIELDS ( status ) WITH CORRESPONDING #( keys )
+       RESULT DATA(lt_plist).
 
-    DELETE lt_plist WHERE Status is  not INITIAL.
-    check lt_plist is NOT INITIAL.
+    DELETE lt_plist WHERE status IS  NOT INITIAL.
+    CHECK lt_plist IS NOT INITIAL.
 
-    MODIFY ENTITIES of zi_pl_head_tp IN LOCAL MODE
-        ENTITY Plist UPDATE FIELDS ( Status )
-        WITH VALUE #( for ls_plist IN lt_plist
+    MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+        ENTITY plist UPDATE FIELDS ( status )
+        WITH VALUE #( FOR ls_plist IN lt_plist
                     ( %tky      = ls_plist-%tky
-                      Status    = 'Created' ) )
+                      status    = 'Created' ) )
         REPORTED DATA(update_reported).
 
     reported = CORRESPONDING #( DEEP update_reported ).
   ENDMETHOD.
 
-  METHOD ValidatePlate.
-
+  METHOD validateplate.
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
-    ENTITY Plist
-    FIELDS ( PlateNo )
+    ENTITY plist
+    FIELDS ( plateno )
     WITH CORRESPONDING #( keys )
     RESULT DATA(lt_plist).
 
 
-    LOOP AT lt_plist INTO data(ls_plist) WHERE PlateNo IS NOT INITIAL.
-      SELECT SINGLE @abap_true FROM ztab_pl_head WHERE plate_no = @ls_plist-PlateNo INTO @data(lv_plate_exists).
+    LOOP AT lt_plist INTO DATA(ls_plist) WHERE plateno IS NOT INITIAL.
+      SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @ls_plist-plateno INTO @DATA(lv_plate_exists).
 
       IF lv_plate_exists = abap_true.
 *       Updated failed data
@@ -112,11 +116,11 @@ CLASS lhc_Plist IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-  METHOD earlynumbering_cba_Plattach.
+  METHOD earlynumbering_cba_plattach.
     READ ENTITY
      IN LOCAL MODE
-     ZI_PL_HEAD_TP
-     BY \_PLAttach
+     zi_pl_head_tp
+     BY \_plattach
      ALL FIELDS WITH CORRESPONDING #( entities )
      RESULT DATA(lt_pl_attach).
 
@@ -126,27 +130,52 @@ CLASS lhc_Plist IMPLEMENTATION.
 
     LOOP AT lt_final_keys INTO DATA(ls_final_key) .
       "Get Maximum number from item from the PO
-      SELECT MAX( AttachNo ) FROM @lt_pl_attach AS itemkeys
-       WHERE Plist = @ls_final_key-Plist
+      SELECT MAX( attachno ) FROM @lt_pl_attach AS itemkeys
+       WHERE plist = @ls_final_key-plist
        INTO @DATA(lv_attach_id).
 
       LOOP AT ls_final_key-%target INTO DATA(ls_item).
-*        lv_itemno += 10.
-        IF ls_final_key-%is_draft = 01.
-          lv_attach_id = lv_attach_id + 10.
-        ELSE.
-          lv_attach_id = ls_item-AttachNo.
-        ENDIF.
-        ls_item-AttachNo = |{ lv_attach_id ALPHA = IN }|.
+
+*        IF ls_final_key-%is_draft = 01.
+*          lv_attach_id = lv_attach_id + 10.
+*        ELSE.
+*          lv_attach_id = ls_item-AttachNo.
+*        ENDIF.
+        lv_attach_id = lv_attach_id + 10.
+        ls_item-attachno = |{ lv_attach_id ALPHA = IN }|.
 *        APPEND VALUE #( %cid = ls_item-%cid
 *                         %tky = ls_final_key-%tky
 *                         %key = ls_item-%key ) TO mapped-attachment.
-        APPEND VALUE #(  %cid = ls_item-%cid %is_draft = ls_final_key-%tky-%is_draft
-        plist = ls_item-%key-Plist attachno = ls_item-%key-AttachNo ) to mapped-attachment.
+        APPEND VALUE #(  %cid = ls_item-%cid
+*                         %is_draft = ls_final_key-%tky-%is_draft
+        plist = ls_item-%key-plist attachno = ls_item-%key-attachno ) TO mapped-attachment.
       ENDLOOP.
 
 
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD populatevehicledetails.
+    READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+        ENTITY plist FIELDS ( plateno ) WITH CORRESPONDING #( keys )
+        RESULT DATA(lt_plist).
+
+    DELETE lt_plist WHERE plateno IS INITIAL.
+    CHECK lt_plist IS NOT INITIAL.
+
+    SELECT * FROM zi_resid_vehicle INTO TABLE @DATA(lt_vehicle)
+             FOR ALL ENTRIES IN @lt_plist WHERE plateno = @lt_plist-plateno.
+
+    MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+        ENTITY plist UPDATE FIELDS ( owner actconfig )
+        WITH VALUE #( FOR ls_plist IN lt_plist
+                    LET ls_vehicle = VALUE #( lt_vehicle[ plateno = ls_plist-plateno ] OPTIONAL )
+                    IN  owner = ls_vehicle-owner actconfig = ls_vehicle-actconfig
+                    ( %tky      = ls_plist-%tky ) )
+        REPORTED DATA(update_reported).
+
+    reported = CORRESPONDING #( DEEP update_reported ).
+
   ENDMETHOD.
 
 ENDCLASS.

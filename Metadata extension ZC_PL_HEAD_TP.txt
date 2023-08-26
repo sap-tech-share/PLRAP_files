@@ -74,28 +74,62 @@ targetElement: '_PLAttach'
     Unit;
 @UI.selectionField: [{ position: 60 }]    
 @UI.lineItem: [{ position: 70, label: 'Division' }]    
+@EndUserText.label: 'Division'
     Division;
 @UI.selectionField: [{ position: 70 }]    
-@UI.lineItem: [{ position: 80, label: 'Owner' }]    
+@UI.lineItem: [{ position: 80, label: 'Owner' }]   
+@EndUserText.label: 'Owner' 
     Owner;
 @UI.selectionField: [{ position: 80 }]    
 @UI.lineItem: [{ position: 90, label: 'User' }]
 @EndUserText.label: 'User'    
     Zzuser;
+@EndUserText.label: 'Year of Manufacturing'    
+    YearOfConst;
+@EndUserText.label: 'Expiry Date'        
+    ExpDate;
+@EndUserText.label: 'KM Reading'    
+    KmReading;
+@EndUserText.label: 'Actual Config'    
+    ActConfig;
+@EndUserText.label: 'Equipment Config Code'    
+    EquipConCode;
+@EndUserText.label: 'Allocation Code'    
+    AllocCode;
+@EndUserText.label: 'Equipment Type'    
+    EquipType;
+@EndUserText.label: 'Description'    
+    Description;
 @UI.lineItem: [{ position: 100, label: 'Diso' }]    
-@UI.fieldGroup: [{ position: 10, label: 'Diso', qualifier: 'AdditionalInfo' }]    
+@UI.fieldGroup: [{ position: 10, label: 'Diso', qualifier: 'AdditionalInfo' }]
+@EndUserText.label: 'Diso'    
     Diso;
 @UI.lineItem: [{ position: 110, label: 'Diso Options' }]    
 @UI.fieldGroup: [{ position: 20, label: 'Diso Options', qualifier: 'AdditionalInfo' }]
+@EndUserText.label: 'Diso Options'
     DisoOptions;
+@EndUserText.label: 'Log Category'
+    LogCatg;
+@EndUserText.label: 'Comments'
 @UI.fieldGroup: [{ position: 30, label: 'Comments', qualifier: 'AdditionalInfo' }]        
     Comments;
+@EndUserText.label: 'Reference Number'    
+    RefFile;
 @UI.selectionField: [{ position: 90 }]    
 @UI.lineItem: [{ position: 120, label: 'Status' }]    
 @UI.dataPoint:{ title: 'Status', qualifier: 'Status' }
+@EndUserText.label: 'Status'    
     Status;
 @UI.lineItem: [{ position: 130, label: 'Approved By' }]    
     ApprovedBy;
+@EndUserText.label: 'MCE File'
+    ProcFileNo;
+@EndUserText.label: 'Contract Number'
+    ContractNo;
+@EndUserText.label: 'Procurement Date'    
+    ProcurementDate;
+@EndUserText.label: 'Delivery Date'
+    DeliveryDate;    
 @UI.selectionField: [{ position: 30 }]
 //@UI.fieldGroup: [{ position: 10, label: 'Created By', qualifier: 'AttachFiles' }]
 @EndUserText.label: 'Created By'

@@ -1,4 +1,4 @@
-@EndUserText.label: 'Consumption view for PL attachment'
+@EndUserText.label: 'Consumption View for ZI_PL_ATTACH'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @Metadata.allowExtensions: true
 define view entity ZC_PL_ATTACH as projection on ZI_PL_ATTACH
