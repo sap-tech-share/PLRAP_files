@@ -1,0 +1,20 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Resource ID interface view'
+@Metadata.ignorePropagatedAnnotations: true
+@ObjectModel.usageType:{
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MIXED
+}
+//@ObjectModel.resultSet.sizeCategory: #XS
+@Search.searchable: true
+define view entity ZI_RESID as select from zmg_resid
+{
+    @EndUserText.label: 'Resource ID'
+    key res_id as ResId,
+    @EndUserText.label: 'Plate #'
+    @Search.defaultSearchElement: true
+    @Search.fuzzinessThreshold: 0.7
+    plate_no as PlateNo
+}

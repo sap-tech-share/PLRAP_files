@@ -1,0 +1,17 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Resource and Vehicle'
+@Metadata.ignorePropagatedAnnotations: true
+@ObjectModel.usageType:{
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MIXED
+}
+define view entity ZI_RESID_VEHICLE as select from ZI_RESID as _Resid
+inner join ZI_VEHICLE as _Vehicle on _Resid.ResId = _Vehicle.ResId
+{
+    key _Resid.ResId as ResId,
+    _Resid.PlateNo as PlateNo,
+    _Vehicle.Owner as Owner,
+    _Vehicle.ActConfig as ActConfig
+}

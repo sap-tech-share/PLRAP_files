@@ -34,7 +34,7 @@ define table zpl_tab_head {
   apprv_by        : usnam;
   proc_file_no    : char10;
   contract_no     : ebeln;
-  procurement_dt  : date;
+  procurement_dt  : datum;
   delivery_dt     : datum;
   created_by      : usnam;
   created_at      : timestamp;

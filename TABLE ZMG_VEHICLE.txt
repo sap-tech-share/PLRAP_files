@@ -1,0 +1,12 @@
+@EndUserText.label : 'Vehicle Table'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zmg_vehicle {
+  key client : abap.clnt not null;
+  key res_id : char22 not null;
+  owner      : num8;
+  act_config : char30;
+
+}

@@ -1,0 +1,11 @@
+@EndUserText.label : 'Resource ID table'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zmg_resid {
+  key client : abap.clnt not null;
+  key res_id : char22 not null;
+  plate_no   : char20;
+
+}
