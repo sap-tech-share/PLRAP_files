@@ -41,15 +41,8 @@ targetQualifier: 'AdditionalInfo'},
 purpose: #HEADER,
 type: #DATAPOINT_REFERENCE,
 targetQualifier: 'Status',
-position: 10 },
+position: 10 }]
 
-{ id: 'Upload',
-purpose: #STANDARD,
-label: 'Upload Attachments',
-type: #LINEITEM_REFERENCE,
-position: 20,
-targetElement: '_PLAttach'
-}]
 @UI.identification: [{ importance: #HIGH, dataAction: 'SetStatusComplete', label: 'Update Status', position: 10, type: #FOR_ACTION }]
 
 @UI.selectionField: [{ position: 10 }]
@@ -142,8 +135,7 @@ targetElement: '_PLAttach'
 @UI.hidden: true
     ChangedAt;
 //@UI.hidden: true
-//    UnitName;
+
     /* Associations */
-//    _UnitOfMeasure;
     
 }

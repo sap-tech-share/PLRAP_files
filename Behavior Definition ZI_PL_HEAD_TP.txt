@@ -1,11 +1,9 @@
 managed implementation in class zbp_i_pl_head_tp unique;
 strict;
-//with draft;
+
 define behavior for ZI_PL_HEAD_TP alias Plist
 persistent table zpl_tab_head
-//draft table zpl_tab_head_d
 lock master
-//total etag ChangedAt
 early numbering
 authorization master ( instance )
 etag master LoclChangedAt
@@ -21,14 +19,6 @@ etag master LoclChangedAt
   determination PopulateVehicleDetails on modify { create; field PlateNo; }
   action (features : instance) SetStatusComplete parameter za_status result [1] $self;
 
-//  draft action Edit;
-//  draft action Resume;
-//  draft action Activate;
-//  draft action Discard;
-//  draft determine action Prepare { validation ValidatePlate; }
-
-//  association _PLAttach { create; with draft; }
-  association _PLAttach { create; }
   mapping for zpl_tab_head {
    Plist = plist;
    Name = name;
@@ -64,31 +54,5 @@ etag master LoclChangedAt
     ChangedBy = changed_by;
     ChangedAt = changed_at;
     LoclChangedAt = locl_changed_at;
-  }
-}
-
-define behavior for ZI_PL_ATTACH alias Attachment
-implementation in class zbp_i_pl_attach unique
-
-persistent table zpl_tab_attach
-//draft table zpl_tab_attach_d
-early numbering
-lock dependent by _Head
-authorization dependent by _Head
-etag master LastChangedAt
-{
-  field ( readonly ) Plist, AttachNo;
-  update;
-  delete;
-//  association _Head { with draft; }
-  association _Head { }
-  mapping for zpl_tab_attach
-  {
-    Plist = plist;
-    AttachNo = attach_no;
-    Attachment = attachment;
-    Filename = filename;
-    Mimetype = mimetype;
-    LastChangedAt = last_changed_at;
   }
 }

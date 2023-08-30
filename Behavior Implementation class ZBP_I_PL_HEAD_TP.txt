@@ -20,8 +20,6 @@ CLASS lhc_plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR plist~validateplate.
     METHODS populatevehicledetails FOR DETERMINE ON MODIFY
       IMPORTING keys FOR plist~populatevehicledetails.
-    METHODS earlynumbering_cba_plattach FOR NUMBERING
-      IMPORTING entities FOR CREATE plist\_plattach.
 
 ENDCLASS.
 
@@ -113,45 +111,6 @@ CLASS lhc_plist IMPLEMENTATION.
                         severity = if_abap_behv_message=>severity-error
                         text = 'Plate Number Exists') ) TO reported-plist.
       ENDIF.
-    ENDLOOP.
-  ENDMETHOD.
-
-  METHOD earlynumbering_cba_plattach.
-    READ ENTITY
-     IN LOCAL MODE
-     zi_pl_head_tp
-     BY \_plattach
-     ALL FIELDS WITH CORRESPONDING #( entities )
-     RESULT DATA(lt_pl_attach).
-
-
-    DATA(lt_final_keys) = entities.
-
-
-    LOOP AT lt_final_keys INTO DATA(ls_final_key) .
-      "Get Maximum number from item from the PO
-      SELECT MAX( attachno ) FROM @lt_pl_attach AS itemkeys
-       WHERE plist = @ls_final_key-plist
-       INTO @DATA(lv_attach_id).
-
-      LOOP AT ls_final_key-%target INTO DATA(ls_item).
-
-*        IF ls_final_key-%is_draft = 01.
-*          lv_attach_id = lv_attach_id + 10.
-*        ELSE.
-*          lv_attach_id = ls_item-AttachNo.
-*        ENDIF.
-        lv_attach_id = lv_attach_id + 10.
-        ls_item-attachno = |{ lv_attach_id ALPHA = IN }|.
-*        APPEND VALUE #( %cid = ls_item-%cid
-*                         %tky = ls_final_key-%tky
-*                         %key = ls_item-%key ) TO mapped-attachment.
-        APPEND VALUE #(  %cid = ls_item-%cid
-*                         %is_draft = ls_final_key-%tky-%is_draft
-        plist = ls_item-%key-plist attachno = ls_item-%key-attachno ) TO mapped-attachment.
-      ENDLOOP.
-
-
     ENDLOOP.
   ENDMETHOD.
 

@@ -8,7 +8,6 @@
     dataClass: #MIXED
 }
 define view entity ZI_PL_HEAD as select from zpl_tab_head
-association[1] to I_UnitOfMeasure as _UnitOfMeasure on $projection.Unit = _UnitOfMeasure.UnitOfMeasure
 {
     key plist as Plist,
     name as Name,
@@ -50,9 +49,5 @@ association[1] to I_UnitOfMeasure as _UnitOfMeasure on $projection.Unit = _UnitO
     @Semantics.systemDateTime.lastChangedAt: true
     changed_at as ChangedAt,
     @Semantics.systemDateTime.localInstanceLastChangedAt: true
-    locl_changed_at as LoclChangedAt,
-    
-    _UnitOfMeasure._Text[Language = $session.system_language].UnitOfMeasureName as UnitName,
-    _UnitOfMeasure
-    
+    locl_changed_at as LoclChangedAt
 }

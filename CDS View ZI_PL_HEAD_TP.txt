@@ -4,7 +4,6 @@
 @Metadata.allowExtensions: true
 @ObjectModel.semanticKey: ['Plist']
 define root view entity ZI_PL_HEAD_TP as select from ZI_PL_HEAD
-composition [*] of ZI_PL_ATTACH as _PLAttach
 association [1] to ZI_RESID_VEHICLE as _ResID on $projection.PlateNo = _ResID.PlateNo
 {
 //    @ObjectModel.text.element: ['Name']
@@ -22,7 +21,6 @@ association [1] to ZI_RESID_VEHICLE as _ResID on $projection.PlateNo = _ResID.Pl
     EstChgReq,
     @Semantics.quantity.unitOfMeasure: 'Unit'
     Qty,
-    @ObjectModel.text.element: ['UnitName']
     Unit,
     Division,
     Owner,
@@ -52,10 +50,6 @@ association [1] to ZI_RESID_VEHICLE as _ResID on $projection.PlateNo = _ResID.Pl
     ChangedBy,
     ChangedAt,
     LoclChangedAt,
-    UnitName,
     /* Associations */
-    _UnitOfMeasure,
-    _PLAttach,
-//    _ResID,
     _ResID
 }
