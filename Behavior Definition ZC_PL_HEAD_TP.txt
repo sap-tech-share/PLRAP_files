@@ -8,4 +8,6 @@ define behavior for ZC_PL_HEAD_TP alias Plist
   use delete;
 
   use action SetStatusComplete;
+  use action CreateNewLicense;
+  use action CreateNewCR;
 }

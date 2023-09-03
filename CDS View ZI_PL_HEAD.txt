@@ -13,6 +13,19 @@ define view entity ZI_PL_HEAD as select from zpl_tab_head
     name as Name,
     plate_no as PlateNo,
     est_chg_req as EstChgReq,
+    plate_ind as PlateInd,
+    cr_ind as CRInd,
+    plist_final as PlistFinal,
+    case
+        when cr_ind = 'X' and plist_final = '' then ''
+        else 'X'
+    end as CRHidden,
+    case
+        when plate_ind = 'X' and plist_final = '' then ''
+        else 'X'
+    end as PlateHidden,
+    case when plist_final = '' then 'X' else '' end as CommonHidden,
+    
     @Semantics.quantity.unitOfMeasure: 'Unit'
     qty as Qty,
     unit as Unit,

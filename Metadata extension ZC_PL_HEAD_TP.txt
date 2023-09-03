@@ -10,32 +10,55 @@ annotate entity ZC_PL_HEAD_TP
     with 
 {
 @UI.facet: [{
-id: 'General',
+id: 'GeneralPlate',
 type: #COLLECTION,
 purpose: #STANDARD,
-label: 'Procuremen List - Plate Number' },
+label: 'Procurement List - Plate Number', hidden: #( PlateHidden ) },
 
+{id: 'GeneralCR',
+type: #COLLECTION,
+purpose: #STANDARD,
+label: 'Procurement List - Change Request Number', hidden: #( CRHidden ) },
 
-//{ id: 'PList',
-//type: #FIELDGROUP_REFERENCE,
-//purpose: #STANDARD,
-//label: 'Procurement List',
-//parentId: 'General',
-//targetQualifier: 'PList'},
+{id: 'GeneralUpdate',
+type: #COLLECTION,
+purpose: #STANDARD,
+label: 'Update Procurement List', hidden: #( CommonHidden ) },
 
 { id: 'Plate',
 type: #FIELDGROUP_REFERENCE,
 purpose: #STANDARD,
 label: 'Plate# to be replaced',
-parentId: 'General',
-targetQualifier: 'Plate'},
+parentId: 'GeneralPlate',
+targetQualifier: 'Plate', hidden: #( PlateHidden )},
 
-{ id: 'AdditionalInfo',
+{ id: 'CR',
 type: #FIELDGROUP_REFERENCE,
 purpose: #STANDARD,
-label: 'Additional Indormation',
-//parentId: 'General',
-targetQualifier: 'AdditionalInfo'},
+label: 'Change Request',
+parentId: 'GeneralCR',
+targetQualifier: 'CR', hidden: #( CRHidden )},
+
+{ id: 'AdditionalInfoPlate',
+type: #FIELDGROUP_REFERENCE,
+purpose: #STANDARD,
+label: 'Additional Information',
+//parentId: 'GeneralPlate',
+targetQualifier: 'AdditionalInfoPlate', hidden: #( PlateHidden )} ,
+
+{ id: 'AdditionalInfoCR',
+type: #FIELDGROUP_REFERENCE,
+purpose: #STANDARD,
+label: 'Additional Information',
+//parentId: 'GeneralCR',
+targetQualifier: 'AdditionalInfoCR', hidden: #( CRHidden )},
+
+{ id: 'Test',
+type: #FIELDGROUP_REFERENCE,
+purpose: #STANDARD,
+label: 'Test Information',
+parentId: 'GeneralUpdate',
+targetQualifier: 'Test', hidden: #( CommonHidden )},
 
 { id:'HeaderStatus',
 purpose: #HEADER,
@@ -47,7 +70,9 @@ position: 10 }]
 
 @UI.selectionField: [{ position: 10 }]
 @UI.lineItem: [{ position: 10, label: 'Procurement List' },
-               {  importance: #HIGH, dataAction: 'SetStatusComplete', label: 'Update Status', position: 10, type: #FOR_ACTION }]
+               {  importance: #HIGH, dataAction: 'CreateNewLicense', label: 'New From License', position: 10, type: #FOR_ACTION },
+               {  importance: #HIGH, dataAction: 'CreateNewCR', label: 'New From Change Req#', position: 20, type: #FOR_ACTION },
+               {  importance: #HIGH, dataAction: 'SetStatusComplete', label: 'Update Status', position: 30, type: #FOR_ACTION }]
 //@UI.fieldGroup: [{ position: 10, label: 'Procurement List Number', qualifier: 'PList' }]
     Plist;
 @UI.lineItem: [{ position: 20, label: 'Name' }]
@@ -55,10 +80,13 @@ position: 10 }]
     Name;
 @UI.selectionField: [{ position: 40 }]
 @UI.lineItem: [{ position: 30, label: 'Plate#' }]
-@UI.fieldGroup: [{ position: 30, label: 'Plate#', qualifier: 'Plate' }]
+@UI.fieldGroup: [{ position: 30, label: 'Plate#', qualifier: 'Plate' },
+                 { position: 10, label: 'Plate#', qualifier: 'Test' }]
     PlateNo;
 @UI.selectionField: [{ position: 50 }]
 @UI.lineItem: [{ position: 40, label: 'Change Request#' }]
+@UI.fieldGroup: [{ position: 30, label: 'Change Request#', qualifier: 'CR' },
+                   { position:20, label: 'Change Request#', qualifier: 'Test' }]
 @EndUserText.label: 'CR#'
     EstChgReq;
 @UI.lineItem: [{ position: 50, label: 'Quantity' }]
@@ -89,22 +117,31 @@ position: 10 }]
     EquipConCode;
 @EndUserText.label: 'Allocation Code'    
     AllocCode;
+@UI.fieldGroup: [{ position: 40, label: 'Equipment Type', qualifier: 'CR' },
+                 { position: 30, label: 'Equipment Type', qualifier: 'Test' }]    
 @EndUserText.label: 'Equipment Type'    
     EquipType;
 @EndUserText.label: 'Description'    
     Description;
 @UI.lineItem: [{ position: 100, label: 'Diso' }]    
-@UI.fieldGroup: [{ position: 10, label: 'Diso', qualifier: 'AdditionalInfo' }]
+@UI.fieldGroup: [{ position: 10, label: 'Diso', qualifier: 'AdditionalInfoPlate'},
+                 { position: 40, label: 'Diso', qualifier: 'Test' }]
 @EndUserText.label: 'Diso'    
     Diso;
 @UI.lineItem: [{ position: 110, label: 'Diso Options' }]    
-@UI.fieldGroup: [{ position: 20, label: 'Diso Options', qualifier: 'AdditionalInfo' }]
+@UI.fieldGroup: [{ position: 20, label: 'Diso Options', qualifier: 'AdditionalInfoPlate' },
+                 { position: 20, label: 'Diso Options', qualifier: 'AdditionalInfoCR' },
+                 { position: 50, label: 'Diso Options', qualifier: 'Test' }]
 @EndUserText.label: 'Diso Options'
     DisoOptions;
+@UI.fieldGroup: [{ position: 50, label: 'Log Category', qualifier: 'CR' },
+                 { position: 60, label: 'Log Category', qualifier: 'Test' }]    
 @EndUserText.label: 'Log Category'
     LogCatg;
 @EndUserText.label: 'Comments'
-@UI.fieldGroup: [{ position: 30, label: 'Comments', qualifier: 'AdditionalInfo' }]        
+@UI.fieldGroup: [{ position: 30, label: 'Comments', qualifier: 'AdditionalInfoPlate' },
+                 { position: 30, label: 'Comments', qualifier: 'AdditionalInfoCR' },
+                 { position: 70, label: 'Comments', qualifier: 'Test' }]        
     Comments;
 @EndUserText.label: 'Reference Number'    
     RefFile;

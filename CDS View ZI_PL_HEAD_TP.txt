@@ -19,6 +19,12 @@ association [1] to ZI_RESID_VEHICLE as _ResID on $projection.PlateNo = _ResID.Pl
     @Search.fuzzinessThreshold: 0.7
     PlateNo,
     EstChgReq,
+    PlateInd,
+    CRInd,
+    PlistFinal,
+    CRHidden,
+    PlateHidden,
+    CommonHidden,
     @Semantics.quantity.unitOfMeasure: 'Unit'
     Qty,
     Unit,

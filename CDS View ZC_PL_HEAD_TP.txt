@@ -18,6 +18,9 @@ as projection on ZI_PL_HEAD_TP
       } ]
     PlateNo,
     EstChgReq,
+    PlateHidden,
+    CRHidden,
+    CommonHidden,
     Qty,
     Unit,
     Division,

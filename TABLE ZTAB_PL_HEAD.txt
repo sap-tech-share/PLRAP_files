@@ -9,6 +9,9 @@ define table zpl_tab_head {
   name            : /sapapo/cres_name;
   plate_no        : char20;
   est_chg_req     : char10;
+  plate_ind       : char1;
+  cr_ind          : char1;
+  plist_final     : char1;
   @Semantics.quantity.unitOfMeasure : 'zpl_tab_head.unit'
   qty             : menge_d;
   unit            : /sapapo/meins;

@@ -20,6 +20,13 @@ CLASS lhc_plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR plist~validateplate.
     METHODS populatevehicledetails FOR DETERMINE ON MODIFY
       IMPORTING keys FOR plist~populatevehicledetails.
+    METHODS createnewlicense FOR MODIFY
+      IMPORTING keys FOR ACTION plist~createnewlicense.
+
+    METHODS setcreatestatus FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR plist~setcreatestatus.
+    METHODS createnewcr FOR MODIFY
+      IMPORTING keys FOR ACTION plist~createnewcr.
 
 ENDCLASS.
 
@@ -135,6 +142,51 @@ CLASS lhc_plist IMPLEMENTATION.
 
     reported = CORRESPONDING #( DEEP update_reported ).
 
+  ENDMETHOD.
+
+  METHOD CreateNewLicense.
+    modify entities of zi_pl_head_tp in local mode
+        entity Plist
+        create from value #( for <instance> in keys
+                    ( %cid = <instance>-%cid PlateInd = abap_true
+                      %control = VALUE #( PlateInd = if_abap_behv=>mk-on ) ) )
+
+                    mapped mapped
+                    failed failed
+                    reported reported.
+  ENDMETHOD.
+
+  METHOD SetCreateStatus.
+    READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+       ENTITY plist FIELDS ( PlistFinal ) WITH CORRESPONDING #( keys )
+       RESULT DATA(lt_plist).
+
+    loop at lt_plist assigning field-symbol(<ls_plist>).
+        if <ls_plist>-PlateNo is not initial or <ls_plist>-EquipType is not initial.
+            <ls_plist>-PlistFinal = abap_true.
+        endif.
+    endloop.
+
+    MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+        ENTITY plist UPDATE FIELDS ( PlistFinal )
+        WITH VALUE #( FOR ls_plist IN lt_plist
+                    ( %tky      = ls_plist-%tky
+                      PlistFinal    = ls_plist-PlistFinal ) )
+        REPORTED DATA(update_reported).
+
+    reported = CORRESPONDING #( DEEP update_reported ).
+  ENDMETHOD.
+
+  METHOD CreateNewCR.
+    modify entities of zi_pl_head_tp in local mode
+        entity Plist
+        create from value #( for <instance> in keys
+                    ( %cid = <instance>-%cid CRInd = abap_true
+                      %control = VALUE #( CRInd = if_abap_behv=>mk-on ) ) )
+
+                    mapped mapped
+                    failed failed
+                    reported reported.
   ENDMETHOD.
 
 ENDCLASS.
