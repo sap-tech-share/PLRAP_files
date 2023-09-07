@@ -13,7 +13,7 @@ CLASS lhc_plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS setstatuscomplete FOR MODIFY
       IMPORTING keys FOR ACTION plist~setstatuscomplete RESULT result.
 
-    METHODS setinitialstatus FOR DETERMINE ON MODIFY
+    METHODS setinitialstatus FOR DETERMINE ON SAVE
       IMPORTING keys FOR plist~setinitialstatus.
 
     METHODS validateplate FOR VALIDATE ON SAVE
@@ -23,28 +23,45 @@ CLASS lhc_plist DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS createnewlicense FOR MODIFY
       IMPORTING keys FOR ACTION plist~createnewlicense.
 
-    METHODS setcreatestatus FOR DETERMINE ON MODIFY
+    METHODS setcreatestatus FOR DETERMINE ON SAVE
       IMPORTING keys FOR plist~setcreatestatus.
     METHODS createnewcr FOR MODIFY
       IMPORTING keys FOR ACTION plist~createnewcr.
+    METHODS mandatorycheck FOR VALIDATE ON SAVE
+      IMPORTING keys FOR plist~mandatorycheck.
 
 ENDCLASS.
 
 CLASS lhc_plist IMPLEMENTATION.
 
   METHOD get_instance_features.
+    READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+      ENTITY plist
+        ALL FIELDS WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_plist).
+
+      result = VALUE #( for ls_plist in lt_plist
+                ( %tky = ls_plist-%tky
+*                  %field-PlateNo = if_abap_behv=>fc-f-mandatory )
+                  %field-PlateNo = COND #( WHEN ( ls_plist-PlateInd = 'X' AND ls_plist-PlistFinal = '' )
+                                           THEN if_abap_behv=>fc-f-mandatory ELSE if_abap_behv=>fc-f-read_only )
+                  %field-EquipType = COND #( WHEN ( ls_plist-CRInd = 'X' AND ls_plist-PlistFinal = '' )
+                                           THEN if_abap_behv=>fc-f-mandatory ELSE if_abap_behv=>fc-f-read_only ) )
+                ).
   ENDMETHOD.
 
   METHOD get_instance_authorizations.
   ENDMETHOD.
 
   METHOD earlynumbering_create.
+*   Generate numbers for active and draft modes
+*   This should be replaced by a number range
     DATA(lt_entities) = entities.
     SELECT MAX(  plist ) FROM zpl_tab_head INTO @DATA(lv_max_plist).
-*    SELECT max(  plist ) FROM zpl_tab_head_d into @DATA(lv_max_plist_d).
-*    if lv_max_plist_d gt lv_max_plist.
-*        lv_max_plist = lv_max_plist_d.
-*    endif.
+    SELECT max(  plist ) FROM zpl_tab_head_d into @DATA(lv_max_plist_d).
+    if lv_max_plist_d gt lv_max_plist.
+        lv_max_plist = lv_max_plist_d.
+    endif.
 
     LOOP AT lt_entities INTO DATA(ls_entity).
       IF ls_entity-plist IS INITIAL.
@@ -53,12 +70,14 @@ CLASS lhc_plist IMPLEMENTATION.
       ENDIF.
 
       APPEND VALUE #( %cid = ls_entity-%cid
-*        %is_draft = ls_entity-%is_draft
+        %is_draft = ls_entity-%is_draft
       plist = ls_entity-plist ) TO mapped-plist.
     ENDLOOP.
   ENDMETHOD.
 
   METHOD setstatuscomplete.
+*   This is triggered from Update Status action,
+*   Update the status with the value entered
     MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
     ENTITY plist
        UPDATE
@@ -81,6 +100,7 @@ CLASS lhc_plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD setinitialstatus.
+*   Setting an initial status while creating
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
        ENTITY plist FIELDS ( status ) WITH CORRESPONDING #( keys )
        RESULT DATA(lt_plist).
@@ -92,13 +112,14 @@ CLASS lhc_plist IMPLEMENTATION.
         ENTITY plist UPDATE FIELDS ( status )
         WITH VALUE #( FOR ls_plist IN lt_plist
                     ( %tky      = ls_plist-%tky
-                      status    = 'Created' ) )
+                      status    = 'Initiated' ) )
         REPORTED DATA(update_reported).
 
     reported = CORRESPONDING #( DEEP update_reported ).
   ENDMETHOD.
 
   METHOD validateplate.
+*   Check if the Plate number is already available in other procurement list item
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
     ENTITY plist
     FIELDS ( plateno )
@@ -110,9 +131,9 @@ CLASS lhc_plist IMPLEMENTATION.
       SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @ls_plist-plateno INTO @DATA(lv_plate_exists).
 
       IF lv_plate_exists = abap_true.
-*       Updated failed data
+*       Updated failed data to framework
         APPEND VALUE #( %tky = ls_plist-%tky ) TO failed-plist.
-*       Update message for the failed data
+*       Update message if the plate number exists
         APPEND VALUE #( %tky = keys[ 1 ]-%tky
                         %msg = new_message_with_text(
                         severity = if_abap_behv_message=>severity-error
@@ -122,6 +143,7 @@ CLASS lhc_plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD populatevehicledetails.
+*   Update the vehicle details from resource id and vehicle table based on the plate number entered
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
         ENTITY plist FIELDS ( plateno ) WITH CORRESPONDING #( keys )
         RESULT DATA(lt_plist).
@@ -145,6 +167,9 @@ CLASS lhc_plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD CreateNewLicense.
+*   This is triggered when clicked on the New From License button
+*   This puts a blank instance with plate indicator to the table which helps the
+*   Fiori Element to identify which field to display for creation
     modify entities of zi_pl_head_tp in local mode
         entity Plist
         create from value #( for <instance> in keys
@@ -157,27 +182,36 @@ CLASS lhc_plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD SetCreateStatus.
+*   This method updates the instance when the mandatory fields for both the type Plate or CR
+*   are updated
+*   This is required as we have a separate set of fields to be displayed for Update/Display mode
     READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
        ENTITY plist FIELDS ( PlistFinal ) WITH CORRESPONDING #( keys )
        RESULT DATA(lt_plist).
 
     loop at lt_plist assigning field-symbol(<ls_plist>).
-        if <ls_plist>-PlateNo is not initial or <ls_plist>-EquipType is not initial.
+        SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @<ls_plist>-plateno INTO @DATA(lv_plate_exists).
+        if lv_plate_exists IS INITIAL and ( <ls_plist>-PlateNo is not initial or <ls_plist>-EquipType is not initial ).
             <ls_plist>-PlistFinal = abap_true.
         endif.
     endloop.
 
+*   It also sets the status from Initiated to Created. Which can be changed further by Update Status action
     MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
         ENTITY plist UPDATE FIELDS ( PlistFinal )
         WITH VALUE #( FOR ls_plist IN lt_plist
                     ( %tky      = ls_plist-%tky
-                      PlistFinal    = ls_plist-PlistFinal ) )
+                      PlistFinal    = ls_plist-PlistFinal
+                      Status        = 'Created' ) )
         REPORTED DATA(update_reported).
 
     reported = CORRESPONDING #( DEEP update_reported ).
   ENDMETHOD.
 
   METHOD CreateNewCR.
+*   This is triggered when clicked on the New From Change Req button
+*   This puts a blank instance with change req indicator to the table which helps the
+*   Fiori Element to identify which field to display for creation
     modify entities of zi_pl_head_tp in local mode
         entity Plist
         create from value #( for <instance> in keys
@@ -187,6 +221,39 @@ CLASS lhc_plist IMPLEMENTATION.
                     mapped mapped
                     failed failed
                     reported reported.
+  ENDMETHOD.
+
+  METHOD MandatoryCheck.
+*   Validate if the mandatory fields are entered; Plate Number for New From Plate
+*   and Equipment Type for New From Change Req
+    READ ENTITIES OF zi_pl_head_tp IN LOCAL MODE
+    ENTITY plist
+    FIELDS ( plateno EquipType )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_plist).
+
+
+    LOOP AT lt_plist INTO DATA(ls_plist).
+      SELECT SINGLE plate_ind, cr_ind FROM zpl_tab_head WHERE plist = @ls_plist-plist INTO
+        @DATA(lv_plate_cr).
+
+      IF lv_plate_cr-plate_ind = abap_true AND ls_plist-PlateNo IS INITIAL.
+*       Updated failed data to the framework
+        APPEND VALUE #( %tky = ls_plist-%tky ) TO failed-plist.
+*       Update message for failed validation of plate number
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+                        %msg = new_message_with_text(
+                        severity = if_abap_behv_message=>severity-error
+                        text = 'Plate Number is mandatory') ) TO reported-plist.
+      ELSEIF lv_plate_cr-cr_ind = abap_true AND ls_plist-EquipType IS INITIAL.
+*       Update message for failed validation of Equipment Type
+        APPEND VALUE #( %tky = ls_plist-%tky ) TO failed-plist.
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+                        %msg = new_message_with_text(
+                        severity = if_abap_behv_message=>severity-error
+                        text = 'Equipment Type is mandatory') ) TO reported-plist.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.

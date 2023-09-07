@@ -1,13 +1,17 @@
     managed implementation in class zbp_i_pl_head_tp unique;
     strict;
+    with draft;
 
     define behavior for ZI_PL_HEAD_TP alias Plist
     persistent table zpl_tab_head
+    draft table zpl_tab_head_d
     lock master
+    total etag ChangedAt
     early numbering
     authorization master ( instance )
     etag master LoclChangedAt
     {
+      field ( features : instance ) PlateNo, EquipType;
       field ( readonly ) Plist, Status, CreatedAt, CreatedBy, ChangedAt, ChangedBy, LoclChangedAt;
       field ( mandatory ) PlateNo;
       create;
@@ -15,13 +19,20 @@
       delete;
 
       validation ValidatePlate on save { field PlateNo; create; }
-      determination SetInitialStatus on modify { create; }
+      validation MandatoryCheck on save {create; field Diso, DisoOptions, Comments, EstChgReq, LogCatg; }
+      determination SetInitialStatus on save { create; }
       determination PopulateVehicleDetails on modify { create; field PlateNo; }
-      determination SetCreateStatus on modify { create; field PlateNo, EquipType; }
+      determination SetCreateStatus on save { create; field PlateNo, EquipType; }
       action (features : instance) SetStatusComplete parameter za_status result [1] $self;
 
       static factory action CreateNewLicense [1];
       static factory action CreateNewCR [1];
+
+      draft action Edit;
+      draft action Resume;
+      draft action Activate;
+      draft action Discard;
+      draft determine action Prepare { validation ValidatePlate; }
 
       mapping for zpl_tab_head {
        Plist = plist;

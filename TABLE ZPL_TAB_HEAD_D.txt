@@ -1,0 +1,51 @@
+@EndUserText.label : 'Draft table for entity ZI_PL_HEAD_TP'
+@AbapCatalog.enhancement.category : #EXTENSIBLE_ANY
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zpl_tab_head_d {
+  key mandt       : mandt not null;
+  key plist       : numc10 not null;
+  name            : /sapapo/cres_name;
+  plateno         : char20;
+  estchgreq       : char10;
+  plateind        : char1;
+  crind           : char1;
+  plistfinal      : char1;
+  crhidden        : abap.char(1);
+  platehidden     : abap.char(1);
+  commonhidden    : abap.char(1);
+  @Semantics.quantity.unitOfMeasure : 'zpl_tab_head_d.unit'
+  qty             : menge_d;
+  unit            : /sapapo/meins;
+  division        : hrobjid;
+  owner           : num8;
+  zzuser          : num8;
+  yearofconst     : char4;
+  expdate         : datum;
+  kmreading       : abap.dec(16,0);
+  actconfig       : char30;
+  equipconcode    : char6;
+  alloccode       : char2;
+  equiptype       : /scmb/de_equi_code;
+  description     : /sapapo/cres_text;
+  diso            : char3;
+  disooptions     : char80;
+  logcatg         : char3;
+  comments        : char20;
+  reffile         : char12;
+  attachmnt       : char1;
+  status          : char11;
+  approvedby      : usnam;
+  procfileno      : char10;
+  contractno      : ebeln;
+  procurementdate : datum;
+  deliverydate    : datum;
+  createdby       : usnam;
+  createdat       : timestamp;
+  changedby       : usnam;
+  changedat       : timestamp;
+  loclchangedat   : timestamp;
+  "%admin"        : include sych_bdl_draft_admin_inc;
+
+}
