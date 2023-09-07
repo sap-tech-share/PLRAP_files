@@ -1,12 +1,12 @@
     managed implementation in class zbp_i_pl_head_tp unique;
     strict;
-    with draft;
+//    with draft;
 
     define behavior for ZI_PL_HEAD_TP alias Plist
     persistent table zpl_tab_head
-    draft table zpl_tab_head_d
+//    draft table zpl_tab_head_d
     lock master
-    total etag ChangedAt
+//    total etag ChangedAt
     early numbering
     authorization master ( instance )
     etag master LoclChangedAt
@@ -28,11 +28,11 @@
       static factory action CreateNewLicense [1];
       static factory action CreateNewCR [1];
 
-      draft action Edit;
-      draft action Resume;
-      draft action Activate;
-      draft action Discard;
-      draft determine action Prepare { validation ValidatePlate; }
+//      draft action Edit;
+//      draft action Resume;
+//      draft action Activate;
+//      draft action Discard;
+//      draft determine action Prepare { validation ValidatePlate; }
 
       mapping for zpl_tab_head {
        Plist = plist;

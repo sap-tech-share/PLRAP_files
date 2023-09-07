@@ -58,10 +58,10 @@ CLASS lhc_plist IMPLEMENTATION.
 *   This should be replaced by a number range
     DATA(lt_entities) = entities.
     SELECT MAX(  plist ) FROM zpl_tab_head INTO @DATA(lv_max_plist).
-    SELECT max(  plist ) FROM zpl_tab_head_d into @DATA(lv_max_plist_d).
-    if lv_max_plist_d gt lv_max_plist.
-        lv_max_plist = lv_max_plist_d.
-    endif.
+*    SELECT max(  plist ) FROM zpl_tab_head_d into @DATA(lv_max_plist_d).
+*    if lv_max_plist_d gt lv_max_plist.
+*        lv_max_plist = lv_max_plist_d.
+*    endif.
 
     LOOP AT lt_entities INTO DATA(ls_entity).
       IF ls_entity-plist IS INITIAL.
@@ -70,7 +70,7 @@ CLASS lhc_plist IMPLEMENTATION.
       ENDIF.
 
       APPEND VALUE #( %cid = ls_entity-%cid
-        %is_draft = ls_entity-%is_draft
+*        %is_draft = ls_entity-%is_draft
       plist = ls_entity-plist ) TO mapped-plist.
     ENDLOOP.
   ENDMETHOD.
@@ -128,16 +128,27 @@ CLASS lhc_plist IMPLEMENTATION.
 
 
     LOOP AT lt_plist INTO DATA(ls_plist) WHERE plateno IS NOT INITIAL.
-      SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @ls_plist-plateno INTO @DATA(lv_plate_exists).
-
-      IF lv_plate_exists = abap_true.
+      SELECT SINGLE @abap_true FROM zmg_resid WHERE plate_no = @ls_plist-plateno INTO @DATA(lv_plate_exists).
+        IF lv_plate_exists ne abap_true.
 *       Updated failed data to framework
         APPEND VALUE #( %tky = ls_plist-%tky ) TO failed-plist.
 *       Update message if the plate number exists
         APPEND VALUE #( %tky = keys[ 1 ]-%tky
                         %msg = new_message_with_text(
                         severity = if_abap_behv_message=>severity-error
-                        text = 'Plate Number Exists') ) TO reported-plist.
+                        text = 'Invalid Plate Number') ) TO reported-plist.
+      ENDIF.
+
+      SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @ls_plist-plateno INTO @DATA(lv_plate_used).
+
+      IF lv_plate_used = abap_true.
+*       Updated failed data to framework
+        APPEND VALUE #( %tky = ls_plist-%tky ) TO failed-plist.
+*       Update message if the plate number exists
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+                        %msg = new_message_with_text(
+                        severity = if_abap_behv_message=>severity-error
+                        text = 'Plate Number Exists in Procurement List') ) TO reported-plist.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -174,6 +185,7 @@ CLASS lhc_plist IMPLEMENTATION.
         entity Plist
         create from value #( for <instance> in keys
                     ( %cid = <instance>-%cid PlateInd = abap_true
+*                      %is_draft = if_abap_behv=>mk-on
                       %control = VALUE #( PlateInd = if_abap_behv=>mk-on ) ) )
 
                     mapped mapped

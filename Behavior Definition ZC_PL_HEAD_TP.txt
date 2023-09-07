@@ -1,10 +1,10 @@
 projection;
 strict;
-use draft;
+//use draft;
 
 define behavior for ZC_PL_HEAD_TP alias Plist
 {
-  use create;
+//  use create;
   use update;
   use delete;
 
@@ -12,9 +12,9 @@ define behavior for ZC_PL_HEAD_TP alias Plist
   use action CreateNewLicense;
   use action CreateNewCR;
 
-  use action Edit;
-  use action Activate;
-  use action Resume;
-  use action Discard;
-  use action Prepare;
+//  use action Edit;
+//  use action Activate;
+//  use action Resume;
+//  use action Discard;
+//  use action Prepare;
 }
