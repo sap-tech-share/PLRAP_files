@@ -1,0 +1,29 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Generic Domain Value Help'
+@Metadata.ignorePropagatedAnnotations: true
+@ObjectModel.usageType:{
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MIXED
+}
+define view entity ZI_DOMAIN_VH_GEN 
+with parameters
+    p_domain_name : sxco_ad_object_name 
+as select from dd07l as value
+association[1] to dd07t as _text on
+    value.domname = _text.domname and
+    value.valpos = _text.valpos and
+    value.as4local = _text.as4local and
+    value.as4vers = _text.as4vers and
+    _text.ddlanguage = $session.system_language
+{
+    key value.domname    as domain_name,
+  key value.valpos     as value_position,
+  key _text.ddlanguage as language,
+      value.domvalue_l as value_low,
+      _text.ddtext     as text
+}
+where
+  value.as4local = 'A' and
+  value.domname = $parameters.p_domain_name

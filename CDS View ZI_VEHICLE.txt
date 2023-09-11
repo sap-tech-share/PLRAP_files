@@ -7,9 +7,10 @@
     sizeCategory: #S,
     dataClass: #MIXED
 }
-define view entity ZI_VEHICLE as select from zmg_vehicle
+define view entity ZI_VEHICLE
+  as select from zmg_vehicle
 {
-    key res_id as ResId,
-    owner      as Owner,
-    act_config as ActConfig
+  key res_id     as ResId,
+      owner      as Owner,
+      act_config as ActConfig
 }

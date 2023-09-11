@@ -2,6 +2,12 @@
 define abstract entity ZA_status
 //  with parameters parameter_name : parameter_type
 {
-    status : abap.char(11);
+//    @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_STATUS_VH', element: 'text'}, 
+//    additionalBinding: [{ element: 'value_low', localElement: 'status' }],
+//    useForValidation: true }]
+//    status_t : abap.char(60);
+    @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_STATUS_VH', element: 'value_low'},useForValidation: true }]
+//    status : zmg_stat;
+    status_act : zmg_stat;
     
 }

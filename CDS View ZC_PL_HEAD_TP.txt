@@ -2,6 +2,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @Metadata.allowExtensions: true
 @Search.searchable: true
+
 define root view entity ZC_PL_HEAD_TP 
 provider contract transactional_query
 as projection on ZI_PL_HEAD_TP
@@ -14,8 +15,9 @@ as projection on ZI_PL_HEAD_TP
         entity: {
           name: 'ZI_RESID',
           element: 'PlateNo'
-        }
+        }, useForValidation: true
       } ]
+      
     PlateNo,
     EstChgReq,
     PlateHidden,
@@ -40,6 +42,8 @@ as projection on ZI_PL_HEAD_TP
     Comments,
     RefFile,
     Attachmnt,
+    @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_STATUS_VH', element: 'value_low'} }]
+    @ObjectModel.text.element: [ 'text' ]
     Status,
     ApprovedBy,
     ProcFileNo,
@@ -52,6 +56,7 @@ as projection on ZI_PL_HEAD_TP
     ChangedAt,
     LoclChangedAt,
     /* Associations */
-    _ResID
+    _ResID,
+    _StatusText.text as text
 
 }

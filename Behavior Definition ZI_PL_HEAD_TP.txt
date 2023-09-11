@@ -11,7 +11,8 @@
     authorization master ( instance )
     etag master LoclChangedAt
     {
-      field ( features : instance ) PlateNo, EquipType;
+      field ( features : instance ) PlateNo, EstChgReq, Division, Zzuser, YearOfConst,
+                                    ExpDate, KmReading, ActConfig, EquipConCode;
       field ( readonly ) Plist, Status, CreatedAt, CreatedBy, ChangedAt, ChangedBy, LoclChangedAt;
       field ( mandatory ) PlateNo;
       create;

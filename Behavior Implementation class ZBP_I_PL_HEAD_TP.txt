@@ -45,8 +45,16 @@ CLASS lhc_plist IMPLEMENTATION.
 *                  %field-PlateNo = if_abap_behv=>fc-f-mandatory )
                   %field-PlateNo = COND #( WHEN ( ls_plist-PlateInd = 'X' AND ls_plist-PlistFinal = '' )
                                            THEN if_abap_behv=>fc-f-mandatory ELSE if_abap_behv=>fc-f-read_only )
-                  %field-EquipType = COND #( WHEN ( ls_plist-CRInd = 'X' AND ls_plist-PlistFinal = '' )
-                                           THEN if_abap_behv=>fc-f-mandatory ELSE if_abap_behv=>fc-f-read_only ) )
+                  %field-EstChgReq = COND #( WHEN ( ls_plist-CRInd = 'X' AND ls_plist-PlistFinal = '' )
+                                           THEN if_abap_behv=>fc-f-mandatory ELSE if_abap_behv=>fc-f-read_only )
+                  %field-Division = if_abap_behv=>fc-f-read_only
+                  %field-Zzuser =  if_abap_behv=>fc-f-read_only
+                  %field-YearOfConst =  if_abap_behv=>fc-f-read_only
+                  %field-ExpDate =  if_abap_behv=>fc-f-read_only
+                  %field-KmReading =  if_abap_behv=>fc-f-read_only
+                  %field-ActConfig =  if_abap_behv=>fc-f-read_only
+                  %field-EquipConCode =  if_abap_behv=>fc-f-read_only
+                                           )
                 ).
   ENDMETHOD.
 
@@ -76,6 +84,17 @@ CLASS lhc_plist IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD setstatuscomplete.
+    data(lv_stat) = keys[ 1 ]-%param-status_act.
+    SELECT SINGLE @abap_true INTO @data(lv_stat_exists) FROM zi_status_vh WHERE value_low = @lv_stat.
+    if lv_stat_exists is INITIAL.
+*       Updated failed data to framework
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky ) TO failed-plist.
+*       Update message if the plate number exists
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+                        %msg = new_message_with_text(
+                        severity = if_abap_behv_message=>severity-error
+                        text = |Invalid Status Value { lv_stat } Entered| ) ) TO reported-plist.
+    else.
 *   This is triggered from Update Status action,
 *   Update the status with the value entered
     MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
@@ -84,7 +103,7 @@ CLASS lhc_plist IMPLEMENTATION.
          FIELDS ( status )
          WITH VALUE #( FOR key IN keys
                          ( %tky         = key-%tky
-                           status = key-%param-status ) )
+                           status = key-%param-status_act ) )
     FAILED failed
     REPORTED reported.
 
@@ -97,6 +116,7 @@ CLASS lhc_plist IMPLEMENTATION.
     result = VALUE #( FOR ls_plist IN lt_plist
                         ( %tky   = ls_plist-%tky
                           %param = ls_plist ) ).
+    endif.
   ENDMETHOD.
 
   METHOD setinitialstatus.
@@ -185,7 +205,7 @@ CLASS lhc_plist IMPLEMENTATION.
         entity Plist
         create from value #( for <instance> in keys
                     ( %cid = <instance>-%cid PlateInd = abap_true
-*                      %is_draft = if_abap_behv=>mk-on
+*                      %is_draft = '01'
                       %control = VALUE #( PlateInd = if_abap_behv=>mk-on ) ) )
 
                     mapped mapped
@@ -205,19 +225,21 @@ CLASS lhc_plist IMPLEMENTATION.
         SELECT SINGLE @abap_true FROM zpl_tab_head WHERE plate_no = @<ls_plist>-plateno INTO @DATA(lv_plate_exists).
         if lv_plate_exists IS INITIAL and ( <ls_plist>-PlateNo is not initial or <ls_plist>-EquipType is not initial ).
             <ls_plist>-PlistFinal = abap_true.
+            <ls_plist>-Status = 'R'.
         endif.
     endloop.
 
 *   It also sets the status from Initiated to Created. Which can be changed further by Update Status action
     MODIFY ENTITIES OF zi_pl_head_tp IN LOCAL MODE
-        ENTITY plist UPDATE FIELDS ( PlistFinal )
+        ENTITY plist UPDATE FIELDS ( PlistFinal Status )
         WITH VALUE #( FOR ls_plist IN lt_plist
                     ( %tky      = ls_plist-%tky
                       PlistFinal    = ls_plist-PlistFinal
-                      Status        = 'Created' ) )
+                      Status        = ls_plist-Status ) )
         REPORTED DATA(update_reported).
 
     reported = CORRESPONDING #( DEEP update_reported ).
+
   ENDMETHOD.
 
   METHOD CreateNewCR.
