@@ -16,15 +16,15 @@ define view entity ZI_PL_HEAD as select from zpl_tab_head
     plate_ind as PlateInd,
     cr_ind as CRInd,
     plist_final as PlistFinal,
-    case
+    cast(case
         when cr_ind = 'X' and plist_final = '' then ''
         else 'X'
-    end as CRHidden,
-    case
+    end as abap_boolean preserving type ) as CRHidden,
+    cast(case
         when plate_ind = 'X' and plist_final = '' then ''
         else 'X'
-    end as PlateHidden,
-    case when plist_final = '' then 'X' else '' end as CommonHidden,
+    end as abap_boolean preserving type ) as PlateHidden,
+    cast(case when plist_final = '' then 'X' else '' end as abap_boolean preserving type ) as CommonHidden,
     
     @Semantics.quantity.unitOfMeasure: 'Unit'
     qty as Qty,
